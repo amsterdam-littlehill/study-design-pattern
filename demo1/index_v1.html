@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>demo1</title>
+</head>
+<style>
+    #content {
+        position: relative;
+        margin-top: 30px;
+        border: 1px red dashed;
+    }
+
+    #myDiv {
+        width: 30px;
+        height: 30px;
+        background-color: blanchedalmond;
+        position: relative;
+        margin: 50px;
+    }
+</style>
+
+<body>
+    <div>
+        <p>需求：</p>
+        <p>1. 输入数值左右移动</p>
+        <p>2. 可以撤销和前进</p>
+    </div>
+    <div>
+        <input type="text" id="input" placeholder="请输入移动数值">
+        <button id="right">左</button>
+        <button id="left">右</button>
+        <button id="front">前进</button>
+        <button id="back">后退</button>
+
+    </div>
+    <div id="content">
+        <div id="myDiv">
+
+        </div>
+    </div>
+
+</body>
+<script>
+    //思路：低耦合
+    var dom = document.getElementById('myDiv');
+    var input = document.getElementById('input')
+
+    function changeDiv(ob) {
+        //类型判断 
+        if (!ob instanceof DataManger) {
+            throw new Error('ob 必须是一个 datamanger 的实例')
+        }
+        debugger;
+        var _data = ob.getData();
+        var nowPostion=Number(dom.style.left.replace('px',''));
+        if(_data.property==='left'){
+            dom.style.left =nowPostion + Number(_data.num) + 'px';
+        }else if(_data.property==='right'){
+            dom.style.left =nowPostion - Number(_data.num) + 'px';
+        }
+        
+        console.log(_data.property,dom.style[_data.property])
+    }
+    //数据模块
+    function DataManger() {
+        //1.数据结构
+        this.stateArr = [{
+            property: 'left',
+            num: 0
+        }];
+        //指针
+        this.nowState = 0;
+    }
+    //
+    DataManger.prototype.addState = function (data) {
+        this.stateArr.push(data);
+        this.nowState = this.stateArr.length - 1;
+    }
+    DataManger.prototype.getBack = function () {
+        if (this.nowState > 0) this.nowState--;
+    }
+    DataManger.prototype.getFront = function () {
+        if (this.nowState < this.stateArr.length) this.nowState++
+    }
+    DataManger.prototype.getData = function () {
+        return this.stateArr[this.nowState]
+    }
+    //实例化数据模块
+    var DataMangerOb = new DataManger()
+    //事件绑定
+    //右移动
+    document.getElementById('left').onclick = function () {
+        DataMangerOb.addState({
+            property: 'left',
+            num: input.value
+        })
+        changeDiv(DataMangerOb)
+    }
+    //左移动
+    document.getElementById('right').onclick = function () {
+        DataMangerOb.addState({
+            property: 'right',
+            num: input.value
+        })
+        changeDiv(DataMangerOb)
+    }
+    //前进操作
+    document.getElementById('front').onclick = function () {
+        DataMangerOb.getFront()
+        changeDiv(DataMangerOb)
+    }
+    //后退操作
+    document.getElementById('back').onclick = function () {
+        DataMangerOb.getBack()
+        changeDiv(DataMangerOb)
+    }
+</script>
+
+</html>

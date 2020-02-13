@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+
+<body>
+    <div id="imgContent">
+        
+    </div>
+
+</body>
+<script>
+    function pic(handler) {
+        this.html = "";
+        this.render(handler)
+    }
+    //先梳理事件流程
+    pic.prototype.render = function () {
+        var order = this.initData(handler);
+        this.initDom(order)
+        this.renderDom(order.id)
+    }
+    pic.prototype.initData = function () {
+        //适配器模式各大框架使用的内容--与默认指令合并
+        //1.默认指令，不需要用户输入
+        //2.防止漏输入
+        var final = {};
+        var defaultHandler = {
+            data: [],
+            id: document,
+            way: 'normal',
+            size: [100, 100]
+        }
+        //合并配置
+        for (var item of defaultHandler) {
+            if (handler[item]) {
+                final[item] = handler[item];
+                if (item === 'id') {
+                    final.id = document.getElementById(item)
+                }
+            } else {
+                final[item] = defaultHandler[item]
+            }
+        }
+        return final;
+    }
+    //生成dom
+    pic.prototype.initDom = function (handler) {
+        //定义样式
+        var styleArr = [{
+                float: 'left',
+                width: handler.size[0] + 'px',
+                height: handler.size[0] + 'px',
+                position: 'relative'
+            },
+            {
+                position: 'absolute',
+                bottom: '0px',
+                right: '0px',
+                backgroundColor: 'black',
+                color: 'white',
+                padding: '10px'
+
+            },
+            {
+                width: '100px',
+                height: '100px'
+            }
+        ]
+        var warper = document.createElement('div');
+        //策略模式
+        var commondHandler = {
+            normal: function () {
+                return arr;
+            },
+            inverte: function () {
+                return arr.reverse();
+            }
+        }
+
+        var _data = commondHandler[handler.way](handler.data).forEach((url, num) => {
+            var div = document.createElement('div');
+            var img = document.createElement('img');
+            var span = document.createElement('span');
+            var styleObj = null,
+                handlerDom = null;
+            styleArr.forEach((style, index) => {
+                switch (index) {
+                    case 0:
+                        handlerDom = div
+                        break
+                    case 1:
+                        handlerDom = span
+                        break
+                    case 1:
+                        handlerDom = img
+                        break
+                    default:
+
+                }
+                for (var item in style) {
+                    handlerDom.style[item] = style[item]
+                }
+            })
+            img.setAttribute('scr', url);
+            div.appendChild(img);
+            span.innerHTML = num + 1;
+            div.appendChild(span);
+            warper.appendChild(div)
+        });
+        this.html = warper;
+    }
+
+    //渲染dom
+    pic.prototype.renderDom = function () {
+        dom.appendChild(this.html)
+    }
+
+    //
+    //实例化 传入指令
+    new Pic({
+        id: 'imgContent',
+        data: ['111.png', '222.png'],
+        size: [100, 200],
+        way: 'inverted'
+    })
+</script>
+<style>
+</style>
+
+</html>
